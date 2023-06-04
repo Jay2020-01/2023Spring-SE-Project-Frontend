@@ -159,136 +159,46 @@
     <!-- 页面主体区域 -->
     <el-container>
       <!-- 侧边栏 -->
-      <el-aside width="200px">
-        <!-- 侧边栏菜单区域  default-active="1"没写-->
-        <el-menu
-          background-color="#fff"
-          text-color="#535353"
-          active-text-color="#409eff"
-          router
-        >
-          <!-- 新建按钮 -->
-          <!-- old-code -->
-          <!-- <el-menu-item class="ceshi">
-              <el-button size="midium" @click="newFile" type="primary" plain>新建文档</el-button>
-          </el-menu-item>-->
-          <div class="new-doc">
-            <el-button size="midium" type="primary" plain @click="canNewDoc()"
-              >新建文档</el-button
-            >
+      <el-aside width="250px">
+        <!-- 侧边栏滑动调节 -->
+        <el-row >
+          <el-col :span="12">
+          <div class="block">
+            <el-slider v-model="sliderValue1" vertical height="400px"> </el-slider>
           </div>
-          <!-- 不分级菜单 -->
-          <el-menu-item index="/workingTable">
-            <i class="fa fa-archive" style="padding: 0 10px 0 10px" />
-            <span slot="title">工作台</span>
-          </el-menu-item>
-          <!-- 不分级菜单 -->
-          <el-menu-item index="/inbox">
-            <i class="fa fa-bookmark-o" style="padding: 0 10px 0 10px" />
-            <span slot="title">收藏夹</span>
-          </el-menu-item>
-          <!-- 分割线 -->
-          <div
-            style="
-              margin: 8px 20px;
-              height: 1.5px;
-              background-color: rgb(230, 230, 230);
-            "
-          />
-          <!-- 不分级菜单 -->
-          <el-menu-item index="/myDesktop">
-            <i class="fa fa-id-card-o" style="padding: 0 10px 0 10px" />
-            <span slot="title">个人信息</span>
-          </el-menu-item>
-
-          <!-- 一级菜单 -->
-          <el-submenu index="/teamSpace">
-            <!-- 一级菜单模板区域 -->
-            <template slot="title">
-              <!-- 图标 -->
-              <i class="fa fa-cube" style="padding: 0 10px 0 10px" />
-              <!-- 文本 -->
-              <span>团队空间</span>
-              <!-- 新增团队按钮 -->
-              <span>
-                <i
-                  class="add-team fa fa-plus-circle"
-                  @click.stop="dialogFormVisible = true"
-                />
-              </span>
-            </template>
-
-            <!-- 二级菜单 -->
-            <el-menu-item
-              v-for="(team, i) in teamList"
-              :key="i"
-              class="second-menu"
-              :index="'/teamSpace/' + team.team_id"
-            >
-              <template slot="title">
-                <!-- 图标 -->
-                <!-- <i class="el-icon-location"></i> -->
-                <!-- 文本 -->
-                <span>{{ team.team_name }}</span>
-              </template>
-            </el-menu-item>
-          </el-submenu>
-
-          <!-- 不分级菜单 -->
-          <el-menu-item index="/trash">
-            <i class="fa fa-trash-o" style="padding: 0 12px 0 11px" />
-            <span slot="title">回收站</span>
-          </el-menu-item>
-        </el-menu>
+          </el-col>
+          <el-col :span="12">
+          <div class="block">
+            <el-slider v-model="sliderValue2" vertical height="400px"> </el-slider>
+          </div>
+          </el-col>
+        </el-row>
+        <!-- 侧边栏选项卡 -->
+        <el-row>
+          <el-collapse v-model="activeName" accordion>
+            <el-collapse-item title="Frequency" name="1">
+              <div>
+                与现实生活一致：与现实生活的流程、逻辑保持一致，遵循用户习惯的语言和概念；
+              </div>
+              <div>
+                在界面中一致：所有的元素和结构需保持一致，比如：设计样式、图标和文本、元素的位置等。
+              </div>
+            </el-collapse-item>
+            <el-collapse-item title="Performance" name="2">
+              <div>
+                控制反馈：通过界面样式和交互动效让用户可以清晰的感知自己的操作；
+              </div>
+              <div>
+                页面反馈：操作后，通过页面元素的变化清晰地展现当前状态。
+              </div>
+            </el-collapse-item>
+          </el-collapse>
+        </el-row>
       </el-aside>
       <!-- 右侧内容主体 -->
       <el-main>
-        <!-- 隐藏的新建团队表单 -->
-        <el-dialog title="新建团队空间" :visible.sync="dialogFormVisible">
-          <el-form ref="teamForm" :model="teamForm">
-            <el-form-item prop="name">
-              <span style="float: left">空间名称</span>
-              <el-input
-                v-model="teamForm.name"
-                placeholder="请输入"
-                autocomplete="off"
-              />
-            </el-form-item>
-          </el-form>
-          <div slot="footer" class="dialog-footer">
-            <el-button @click="dialogFormVisible = false">取 消</el-button>
-            <el-button
-              type="primary"
-              @click="
-                dialogFormVisible = false;
-                createTeam('teamForm');
-              "
-              >确 定</el-button
-            >
-          </div>
-        </el-dialog>
-
-        <!-- 隐藏的新建文件的表单 -->
-        <el-dialog title="新建文档" :visible.sync="newdocVisible">
-          <el-form ref="docForm" :model="docForm" label-width="80px">
-            <el-form-item label="文档名称">
-              <el-input v-model="docForm.name" placeholder="无标题" />
-              <!-- <el-button style="text-align: left;">使用模板</el-button> -->
-            </el-form-item>
-          </el-form>
-          <div slot="footer" class="dialog-footer">
-            <el-button
-              style="text-align: left"
-              @click="
-                newdocVisible = false;
-                use_templates();
-              "
-              >使用模板</el-button
-            >
-            <el-button @click="newdocVisible = false">取 消</el-button>
-            <el-button type="primary" @click="newFile()">确 定</el-button>
-          </div>
-        </el-dialog>
+        <!-- 显示图片 -->
+        <el-image :src="src"></el-image>
 
         <!-- 路由占位符 -->
         <router-view />
@@ -303,6 +213,12 @@ import Qs from "qs";
 export default {
   data() {
     return {
+      // 滑块数值
+      sliderValue1: 100,
+      sliderValue2: 100,
+      activeName: "1",
+      // 图片url
+      src: "https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg",
       // 搜索文档关键词
       input: "",
       // 默认激活

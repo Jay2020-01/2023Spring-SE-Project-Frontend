@@ -30,7 +30,6 @@ const routes = [
     { path: '/editor/:doc_id/:team_id/:level', name: "editor", component: Editor, meta: { requiresAuth: true } },
     {
         path: '/home',
-        redirect: '/workingTable',
         component: Home,
         children: [
             { path: '/workingTable', component: WorkingTable, meta: { requiresAuth: true } },
