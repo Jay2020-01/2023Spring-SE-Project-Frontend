@@ -161,17 +161,38 @@
       <!-- 侧边栏 -->
       <el-aside width="250px">
         <!-- 侧边栏滑动调节 -->
-        <el-row >
-          <el-col :span="12">
-          <div class="block">
-            <el-slider v-model="sliderValue1" vertical height="400px"> </el-slider>
-          </div>
+        <el-row>
+          <el-col :span="12" style="display: flex; align-items: center;">
+            <el-row style="height: 20px">
+              <span>Activities</span>
+            </el-row>
+            <el-row>
+              <el-slider
+                v-model="sliderValue1"
+                vertical
+                height="400px"
+                :show-input="true"
+                :show-input-controls="false"
+              >
+              </el-slider>
+            </el-row>
           </el-col>
-          <el-col :span="12">
-          <div class="block">
-            <el-slider v-model="sliderValue2" vertical height="400px"> </el-slider>
-          </div>
-          </el-col>
+          <!-- <el-col :span="12">
+            <el-row style="height: 20px">
+              <el-span >Paths</el-span>
+            </el-row>
+            <el-row>
+              <el-slider
+              v-model="sliderValue2"
+              vertical
+              height="400px"
+              :show-input="true"
+              :show-input-controls="false"
+            >
+            </el-slider>
+            </el-row>
+            
+          </el-col> -->
         </el-row>
         <!-- 侧边栏选项卡 -->
         <el-row>
@@ -198,7 +219,7 @@
       <!-- 右侧内容主体 -->
       <el-main>
         <!-- 显示图片 -->
-        <el-image :src="src"></el-image>
+        <el-image :src="src" style="width: 95%; height: 95%"></el-image>
 
         <!-- 路由占位符 -->
         <router-view />
