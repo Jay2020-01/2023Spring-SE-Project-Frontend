@@ -10,7 +10,7 @@
       :style="styleControl ? 'margin-bottom: 0px;' : 'margin-bottom: 7px;'"
     >
       <el-row type="flex" class="row-bg">
-        <el-col :span="4" :offset="0">
+        <el-col :span="8" :offset="0">
           <div class="grid-content head-box1 bg-purple">
             <!-- 头像区域 -->
             <el-avatar
@@ -25,135 +25,10 @@
               @click.middle.native="styleControl = !styleControl"
               >logo</el-avatar
             >
-            <span class="site-name">钻石文档</span>
+            <span class="site-name">FloK-8：流程日志挖掘工具</span>
           </div>
         </el-col>
-        <el-col :span="8" :offset="0">
-          <span
-            class="show-names"
-            :style="styleControl ? 'color:#409eff;' : 'color:#fff'"
-          >
-            {{ names }}
-          </span>
-        </el-col>
-        <el-col :span="5" :offset="1">
-          <div class="grid-content head-box2 bg-purple-light">
-            <el-input
-              v-model="input"
-              prefix-icon="fa fa-search"
-              placeholder="搜索文档"
-              size="small"
-              @keyup.enter.native="searchFile()"
-              clearable
-            />
-          </div>
-        </el-col>
-        <el-col :span="6" style="height: 60px">
-          <div class="grid-content head-box3 bg-purple">
-            <!-- 通知图标 -->
-            <el-dropdown
-              style="height: 60px; display: flex; align-items: center"
-              @visible-change="getNoticeList"
-            >
-              <el-badge
-                is-dot
-                class="item"
-                :hidden="this.noticeList.length == 0"
-              >
-                <!-- 上面这里的hidden就是判断是否显示小红点的 -->
-                <span
-                  class="el-dropdown-link"
-                  style="height: 20px; display: flex; align-items: center"
-                >
-                  <i
-                    class="el-icon-bell"
-                    style="height: 20px; font-size: 20px"
-                  />
-                </span>
-              </el-badge>
-              <!-- 通知图标下面的下拉栏 -->
-              <el-dropdown-menu slot="dropdown">
-                <!-- 这里好像要用嵌套路由来写下面的内容 -->
-                <el-row>
-                  <el-col :span="12" style="text-align: center; width: 350px">
-                    <h5>全部消息</h5>
-                  </el-col>
-                  <!-- <el-col :span="12" style="float:center;position:relative;top:20px;right:-20px">
-                    <el-button type="primary" size="small">全部标记为已读</el-button>
-                  </el-col>-->
-                </el-row>
-
-                <!-- 消息通知新样式 -->
-                <!-- 文件卡片 -->
-                <div :key="index" v-for="(notice, index) in noticeList">
-                  <el-card shadow="hover">
-                    <div class="card-container">
-                      <!-- 图标 -->
-                      <div class="picture inline-div">
-                        <span
-                          class="fa fa-file-text-o"
-                          style="font-size: 25px"
-                        />
-                      </div>
-                      <!-- 文字 -->
-                      <div class="word inline-div">
-                        <div class="title">
-                          {{
-                            notice.actor_name +
-                            " 邀请我进入 " +
-                            notice.target_name
-                          }}
-                        </div>
-                        <div class="details">{{ notice.sent_time }}</div>
-                      </div>
-                      <!-- 按钮 -->
-                      <div style="display: flex; align-items: center">
-                        <el-button
-                          size="mini"
-                          type="success"
-                          icon="el-icon-check"
-                          @click="responseInvitation(index, 'Yes')"
-                          circle
-                        ></el-button>
-                        <el-button
-                          size="mini"
-                          type="danger"
-                          icon="el-icon-close"
-                          @click="responseInvitation(index, 'No')"
-                          circle
-                        ></el-button>
-                      </div>
-                    </div>
-                  </el-card>
-                </div>
-              </el-dropdown-menu>
-            </el-dropdown>
-
-            <!-- 这里是右上角的头像 -->
-            <el-dropdown style="height: 60px" @visible-change="get_user_info">
-              <span class="el-dropdown-link">
-                <div>
-                  <el-avatar :size="35" :src="imageUrl" />
-                </div>
-              </span>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item disabled>{{ username }}</el-dropdown-item>
-                <el-dropdown-item disabled>{{ mail_address }}</el-dropdown-item>
-                <!-- <el-divider></el-divider> -->
-                <!-- <el-dropdown-item >个人信息</el-dropdown-item> -->
-                <el-divider>
-                  <i class="el-icon-mobile-phone" />
-                </el-divider>
-                <el-dropdown-item @click.native="changeInfo"
-                  >修改信息</el-dropdown-item
-                >
-                <el-dropdown-item style="color: red" @click.native="logout"
-                  >退出登录</el-dropdown-item
-                >
-              </el-dropdown-menu>
-            </el-dropdown>
-          </div>
-        </el-col>
+        
       </el-row>
     </el-header>
     <!-- 页面主体区域 -->
@@ -162,56 +37,97 @@
       <el-aside width="250px">
         <!-- 侧边栏滑动调节 -->
         <el-row>
-          <el-col :span="12" style="display: flex; align-items: center;">
-            <el-row style="height: 20px">
-              <span>Activities</span>
-            </el-row>
-            <el-row>
+          <!-- 左边的滑动条 -->
+          <el-col
+            :span="12"
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+            "
+          >
+            <span
+              style="
+                height: 20px;
+                font-size: 16px;
+                display: flex;
+                align-items: center;
+              "
+              >Activities</span
+            >
+            <el-row style="margin-top: 15px">
               <el-slider
                 v-model="sliderValue1"
                 vertical
-                height="400px"
+                height="380px"
                 :show-input="true"
                 :show-input-controls="false"
               >
               </el-slider>
             </el-row>
           </el-col>
-          <!-- <el-col :span="12">
-            <el-row style="height: 20px">
-              <el-span >Paths</el-span>
-            </el-row>
-            <el-row>
-              <el-slider
-              v-model="sliderValue2"
-              vertical
-              height="400px"
-              :show-input="true"
-              :show-input-controls="false"
+          <!-- 右边的滑动条 -->
+          <el-col
+            :span="12"
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+            "
+          >
+            <span
+              style="
+                height: 20px;
+                font-size: 16px;
+                display: flex;
+                align-items: center;
+              "
+              >Paths</span
             >
-            </el-slider>
+            <el-row style="margin-top: 15px">
+              <el-slider
+                v-model="sliderValue2"
+                vertical
+                height="380px"
+                :show-input="true"
+                :show-input-controls="false"
+              >
+              </el-slider>
             </el-row>
-            
-          </el-col> -->
+          </el-col>
         </el-row>
         <!-- 侧边栏选项卡 -->
         <el-row>
           <el-collapse v-model="activeName" accordion>
-            <el-collapse-item title="Frequency" name="1">
-              <div>
-                与现实生活一致：与现实生活的流程、逻辑保持一致，遵循用户习惯的语言和概念；
-              </div>
-              <div>
-                在界面中一致：所有的元素和结构需保持一致，比如：设计样式、图标和文本、元素的位置等。
-              </div>
+            <!-- 上面的Frequency选项卡 -->
+            <el-collapse-item title="Frequency" name="1" style="">
+              <el-row style="display: flex; justify-content: center">
+                <el-select v-model="value1" placeholder="请选择" style="width: 180px; ">
+                <el-option
+                  v-for="item in options1"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                >
+                </el-option>
+              </el-select>
+              </el-row>
             </el-collapse-item>
+            <!-- 下面的Performance选项卡 -->
             <el-collapse-item title="Performance" name="2">
-              <div>
-                控制反馈：通过界面样式和交互动效让用户可以清晰的感知自己的操作；
-              </div>
-              <div>
-                页面反馈：操作后，通过页面元素的变化清晰地展现当前状态。
-              </div>
+              <el-row style="display: flex; justify-content: center">
+                <el-select v-model="value2" placeholder="请选择" style="width: 180px; ">
+                <el-option
+                  v-for="item in options2"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                >
+                </el-option>
+              </el-select>
+              </el-row>
             </el-collapse-item>
           </el-collapse>
         </el-row>
@@ -240,6 +156,41 @@ export default {
       activeName: "1",
       // 图片url
       src: "https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg",
+      // 
+      options1: [{
+          value: '1',
+          label: 'Absolute frequency'
+        }, {
+          value: '2',
+          label: 'Case frequency'
+        }, {
+          value: '3',
+          label: 'Max. repetitions'
+        }, {
+          value: '4',
+          label: 'Case coverage'
+        }],
+      value1: '1',
+      // 
+      options2: [{
+          value: '1',
+          label: 'Total duration'
+        }, {
+          value: '2',
+          label: 'Median duration'
+        }, {
+          value: '3',
+          label: 'Mean duration'
+        }, {
+          value: '4',
+          label: 'Max. duration'
+        }, {
+          value: '5',
+          label: 'Min. duration'
+        }],
+      value2: '1',
+
+
       // 搜索文档关键词
       input: "",
       // 默认激活
