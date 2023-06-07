@@ -10,7 +10,7 @@
       :style="styleControl ? 'margin-bottom: 0px;' : 'margin-bottom: 7px;'"
     >
       <el-row type="flex" class="row-bg">
-        <el-col :span="8" :offset="0">
+        <el-col :span="7" :offset="0">
           <div class="grid-content head-box1 bg-purple">
             <!-- 头像区域 -->
             <el-avatar
@@ -26,6 +26,22 @@
             >
             <span class="site-name" @click="changeSlider">FloK-8：流程日志挖掘工具</span>
           </div>
+        </el-col>
+        <el-col :span="8">
+          <!-- <el-upload
+              ref="uploadRef"
+              class="upload-demo"
+              :action="actionUrl"
+              :show-file-list="false"
+              :file-list="fileList"
+              accept=".csv"
+              :limit="1"
+              :auto-upload="false"
+              :on-change = "handleUpload"
+            >
+              <el-button type="primary">选择文件</el-button>
+            </el-upload> -->
+            <input type="file" accept=".csv"  @change="handleUpload" class="upload"> 
         </el-col>
         
       </el-row>
@@ -136,7 +152,7 @@
       <!-- 右侧内容主体 -->
       <el-main>
         <!-- 显示图片 -->
-        <img :src="'data:image/png;base64,'+ images.url" style="height: 75%" alt>
+        <img :src="'data:image/png;base64,'+ images.url" style="height: 650px" alt>
 
         <!-- 路由占位符 -->
         <router-view />
@@ -192,6 +208,11 @@ export default {
           label: 'Min. duration'
         }],
       value2: 'Total duration',
+      // 文件上传
+      fileList: [],
+      fileName: "",
+      actionUrl: "",
+
 
 
       // 搜索文档关键词
@@ -240,7 +261,8 @@ export default {
         showType = this.value1;
       }
       var data = Qs.stringify({
-        file_path: "ExampleLog.csv",
+        file_path: this.fileName,
+        // file_path: "bpic12.csv",
         show_type: showType,
         activity_rate: this.activityRate / 100,
         path_rate: this.pathRate / 100,
@@ -269,6 +291,13 @@ export default {
     changeSelect() {
       this.getResult();
     },
+    // 文件上传
+    handleUpload(e) {
+      const fileInput = e.target;
+      const file = fileInput.files[0];
+      this.fileName = file.name;
+      this.getResult();
+    }
   },
 };
 </script>
@@ -321,6 +350,10 @@ body > .el-container {
 }
 .site-name {
   font-size: 20px;
+  color: #409eff;
+}
+.upload {
+  font-size: 16px;
   color: #409eff;
 }
 .head-box3 {
