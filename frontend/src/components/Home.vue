@@ -14,18 +14,17 @@
           <div class="grid-content head-box1 bg-purple">
             <!-- 头像区域 -->
             <el-avatar
-              icon="fa fa-diamond"
+              icon="fa fa-list-alt"
               style="
                 color: #409eff;
                 background-color: #fff !important;
                 cursor: pointer;
               "
               :size="40"
-              @click.native="backtoHome"
-              @click.middle.native="styleControl = !styleControl"
+              @click.native="getResult"
               >logo</el-avatar
             >
-            <span class="site-name">FloK-8：流程日志挖掘工具</span>
+            <span class="site-name" @click="changeSlider">FloK-8：流程日志挖掘工具</span>
           </div>
         </el-col>
         
@@ -58,11 +57,12 @@
             >
             <el-row style="margin-top: 15px">
               <el-slider
-                v-model="sliderValue1"
+                v-model="activityRate"
                 vertical
                 height="380px"
                 :show-input="true"
                 :show-input-controls="false"
+                @change="changeSlider"
               >
               </el-slider>
             </el-row>
@@ -88,11 +88,12 @@
             >
             <el-row style="margin-top: 15px">
               <el-slider
-                v-model="sliderValue2"
+                v-model="pathRate"
                 vertical
                 height="380px"
                 :show-input="true"
                 :show-input-controls="false"
+                @change="getResult"
               >
               </el-slider>
             </el-row>
@@ -100,16 +101,16 @@
         </el-row>
         <!-- 侧边栏选项卡 -->
         <el-row>
-          <el-collapse v-model="activeName" accordion>
+          <el-collapse v-model="activeName" accordion @change="changeCollapse">
             <!-- 上面的Frequency选项卡 -->
             <el-collapse-item title="Frequency" name="1" style="">
               <el-row style="display: flex; justify-content: center">
-                <el-select v-model="value1" placeholder="请选择" style="width: 180px; ">
+                <el-select v-model="value1" placeholder="请选择" style="width: 180px; " @change="changeSelect">
                 <el-option
                   v-for="item in options1"
                   :key="item.value"
                   :label="item.label"
-                  :value="item.value"
+                  :value="item.label"
                 >
                 </el-option>
               </el-select>
@@ -118,12 +119,12 @@
             <!-- 下面的Performance选项卡 -->
             <el-collapse-item title="Performance" name="2">
               <el-row style="display: flex; justify-content: center">
-                <el-select v-model="value2" placeholder="请选择" style="width: 180px; ">
+                <el-select v-model="value2" placeholder="请选择" style="width: 180px; " @change="changeSelect">
                 <el-option
                   v-for="item in options2"
                   :key="item.value"
                   :label="item.label"
-                  :value="item.value"
+                  :value="item.label"
                 >
                 </el-option>
               </el-select>
@@ -135,7 +136,7 @@
       <!-- 右侧内容主体 -->
       <el-main>
         <!-- 显示图片 -->
-        <el-image :src="src" style="width: 95%; height: 95%"></el-image>
+        <img :src="'data:image/png;base64,'+ images.url" style="height: 75%" alt>
 
         <!-- 路由占位符 -->
         <router-view />
@@ -151,11 +152,13 @@ export default {
   data() {
     return {
       // 滑块数值
-      sliderValue1: 100,
-      sliderValue2: 100,
+      activityRate: 100,
+      pathRate: 100,
       activeName: "1",
       // 图片url
-      src: "https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg",
+      images:{
+		    url: "",   //base64码
+		  },
       // 
       options1: [{
           value: '1',
@@ -170,7 +173,7 @@ export default {
           value: '4',
           label: 'Case coverage'
         }],
-      value1: '1',
+      value1: 'Absolute frequency',
       // 
       options2: [{
           value: '1',
@@ -188,7 +191,7 @@ export default {
           value: '5',
           label: 'Min. duration'
         }],
-      value2: '1',
+      value2: 'Total duration',
 
 
       // 搜索文档关键词
@@ -222,201 +225,49 @@ export default {
     };
   },
   created: function () {
-    this.getTeamList();
-    this.get_user_avatar();
-    this.get_user_info();
-    this.getNoticeList();
+    this.getResult();
   },
-  // activated: function() {
-  //   this.getTeamList();
-  // },
-  beforeUpdate: function () {
-    this.get_user_avatar();
-  },
+
   methods: {
-    // 拉取用户头像
-    get_user_avatar() {
-      axios.get("http://localhost:8000/ajax/get_user_avatar/").then((res) => {
-        this.imageUrl = res.data.url;
-      });
-    },
-    // 拉取用户名和邮箱地址
-    get_user_info() {
-      axios.get("http://localhost:8000/ajax/user_info/").then((res) => {
-        this.username = res.data.username;
-        this.mail_address = res.data.mail_address;
-        this.imageUrl = res.data.url;
-      });
-    },
-    createTeam(formName) {
-      // 验证表单
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          var data = Qs.stringify(this.teamForm); // 先用Qs对数据进行处理
-          axios
-            .post("http://localhost:8000/ajax/create_team/", data)
-            .then((res) => {
-              this.getTeamList();
-            });
-        } else {
-          alert("表格不能为空");
-        }
-        // 强制刷新
-        // this.$router.go(0);
-        // this.activeIndex = "/teamSpace";
-      });
-    },
-    // 获取团队名列表
-    getTeamList() {
-      axios.post("http://localhost:8000/ajax/get_my_team/").then((res) => {
-        this.teamList = res.data.team_list;
-      });
-    },
-    // 判断能否新建文档
-    canNewDoc() {
-      var team_id = parseInt(this.$route.params.team_id);
-      if (typeof this.$route.params.team_id === "undefined") {
-        console.log("is nan");
-        this.newdocVisible = true;
+    // 新项目函数
+    // 获得图片
+    getResult() {
+
+      var showType;
+      if(this.activeName === "2") {
+        showType = this.value2;
       } else {
-        for (var i = 0; i < this.teamList.length; i++) {
-          if (team_id == this.teamList[i].team_id) {
-            if (this.teamList[i].level < 4) {
-              this.$message({
-                showClose: true,
-                message: "您的权限不能创建文档",
-                type: "error",
-              });
-              break;
-            } else {
-              this.newdocVisible = true;
-            }
-          }
-        }
+        showType = this.value1;
       }
-    },
-    // 获取消息列表
-    getNoticeList() {
-      console.log("success");
-      axios.get("http://localhost:8000/ajax/get_user_notice/").then((res) => {
-        this.noticeList = res.data.notice_list;
-      });
-    },
-    // 从消息列表统意/拒绝邀请
-    responseInvitation(index, answer) {
       var data = Qs.stringify({
-        notice_id: this.noticeList[index].notice_id,
-        answer: answer,
-        team_id: this.noticeList[index].target_id,
+        file_path: "ExampleLog.csv",
+        show_type: showType,
+        activity_rate: this.activityRate / 100,
+        path_rate: this.pathRate / 100,
       });
       console.log(data);
       axios
-        .post("http://localhost:8000/ajax/response_invitation/", data)
-        .then((res) => {});
-    },
-    logout() {
-      this.$store.dispatch("logout").then(() => {
-        this.$router.push("/login");
-      });
-    },
-    changeInfo() {
-      window.sessionStorage.clear();
-      this.$router.push("/myinfo");
-    },
-    async newFile() {
-      // var myDate = new Date();
-      // 限制必须输入文档标题
-      if (this.docForm.name.length == 0) {
-        this.$message({
-          showClose: true,
-          message: "请输入文档标题",
-          type: "error",
+        .post("http://127.0.0.1:5000/predict", data)
+        .then((res) => {
+          this.images.url = res.data;
         });
-      } else {
-        this.newdocVisible = false;
-        window.sessionStorage.clear();
-        var doc_id = 0;
-        var team_id = parseInt(this.$route.params.team_id);
-        var level = 4;
-        // console.log(this.teamList)
-        if (team_id >= 0) {
-          level = this.teamList.find((team) => team.team_id == team_id).level;
-        } else {
-          team_id = -1;
-        }
-        // console.log(myDate.toLocaleString());
-        // console.log(level)
-        try {
-          const resp = await this.get_docid();
-          console.log(resp);
-          const flag = resp.data.flag;
-          doc_id = resp.data.doc_id;
-          if (flag == "yes") {
-            this.$message({
-              message: "新建成功",
-              type: "success",
-            });
-            var data = Qs.stringify({
-              doc_id: doc_id,
-            });
-            axios.post("http://localhost:8000/ajax/update_browsing/", data);
-          } else {
-            this.$message({
-              message: "新建文档出错",
-              type: "warning",
-            });
-          }
-        } catch (err) {
-          console.log(err);
-        }
-        // console.log(doc_id);
-        this.$router.push("/editor/" + doc_id + "/" + team_id + "/" + level);
-      }
-    },
-    get_docid(data) {
-      return new Promise((resolve, reject) => {
-        var team_id = parseInt(this.$route.params.team_id);
-        if (team_id >= 0) {
-          console.log("新建团队文档");
-        } else {
-          team_id = -1;
-          console.log("新建个人文档");
-        }
-        var data = Qs.stringify({
-          title: this.docForm.name,
-          team_id: team_id,
-          // create_time: myDate.toLocaleString(),
-        });
-        axios
-          .post("http://localhost:8000/ajax/create_doc/", data)
-          .then((resp) => {
-            resolve(resp);
-          })
-          .catch((err) => {
-            reject(err);
-          });
-      });
-    },
-    backtoHome() {
-      window.sessionStorage.clear();
-      this.$router.push("/home");
-    },
-    use_templates() {
-      // this.$message({
-      // showClose:true,
-      //     message: "请跳转到选择模板页面",
-      //     type: "warning",
-      //   });
-      var team_id = -1;
-      if (typeof this.$route.params.team_id !== "undefined")
-        team_id = this.$route.params.team_id;
-      this.$router.push("/templates/" + team_id);
     },
 
-    // 搜索文档
-    searchFile() {
-      if (this.input.length != 0)
-        this.$router.push("/searchresult/" + this.input);
+    // 点击首页图标
+    clickLogo() {
+      this.getResult();
+    },
+    // 滑动滑块
+    changeSlider() {
+      this.getResult();
+    },
+    // 改变折叠面板
+    changeCollapse() {
+      this.getResult();
+    },
+    // 改变选择类型
+    changeSelect() {
+      this.getResult();
     },
   },
 };
